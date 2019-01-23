@@ -11,3 +11,7 @@ contrib/target
 */.classpath
 */.project
 */.settings
+target/
+*.log
+*.keystore
+*.invalid

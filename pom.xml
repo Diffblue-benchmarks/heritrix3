@@ -17,10 +17,10 @@ http://maven.apache.org/guides/mini/guide-m1-m2.html
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.archive</groupId>
 	<!--This project is parent to all under 'projects' subdirectory-->
-	<artifactId>heritrix</artifactId>
+	<artifactId>heritrix-wrapper</artifactId>
 	<version>3.4.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Heritrix 3</name>
+	<name>Heritrix 3 (Wrapper)</name>
 	<description>
 		Heritrix is the Internet Archive's open-source, extensible, web-scale,
 		archival-quality web crawler project.
@@ -88,55 +88,6 @@ http://maven.apache.org/guides/mini/guide-m1-m2.html
 		</mailingList>
 	</mailingLists>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>builds.archive.org,maven2</id>
-			<url>http://builds.archive.org/maven2</url>
-		</pluginRepository>
-	</pluginRepositories>
-
-	<repositories>
-		<repository>
-			<id>builds.archive.org,maven2</id>
-			<url>http://builds.archive.org/maven2</url>
-		</repository>
-	</repositories>
-
-	<prerequisites>
-		<maven>2.0.9</maven>
-	</prerequisites>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.archive.heritrix</groupId>
-				<artifactId>commons</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.archive.heritrix</groupId>
-				<artifactId>modules</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.archive.heritrix</groupId>
-				<artifactId>engine</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<!-- lock httpclient version -->
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>4.3.6</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpmime</artifactId>
-				<version>4.3.6</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<modules>
 		<module>commons</module>
 		<module>modules</module>
@@ -145,6 +96,70 @@ http://maven.apache.org/guides/mini/guide-m1-m2.html
 		<module>contrib</module>
 	</modules>
 
+    <dependencies>
+      <dependency>
+        <groupId>org.archive.heritrix</groupId>
+        <artifactId>heritrix-commons</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.archive.heritrix</groupId>
+        <artifactId>heritrix-modules</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.archive.heritrix</groupId>
+        <artifactId>heritrix-engine</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.archive.heritrix</groupId>
+        <artifactId>heritrix-contrib</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.9</version>
+        <reportSets>
+          <reportSet></reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>3.0.0-M3</version>
+        <configuration>
+          <aggregate>true</aggregate>
+          <linkXRef>false</linkXRef>
+          <showSuccess>false</showSuccess>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.3</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report-aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
 
 	<distributionManagement>
 		<repository>
@@ -325,73 +340,6 @@ http://maven.apache.org/guides/mini/guide-m1-m2.html
 		</contributor>
 	</contributors>
 
-
-	<reporting>
-		<outputDirectory>target/site</outputDirectory>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.6.1</version>
-				<configuration>
-					<source>
-						${basedir}/src/java
-					</source>
-					<overview>
-						${basedir}/src/site/overview.html
-					</overview>
-					<aggregate>
-						true
-					</aggregate>
-					<links>
-						<link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-					</links>
-				</configuration>
-			</plugin>
-		</plugins>
-	</reporting>
-	<build>
-		<plugins>
-			<plugin>
-				<!-- install source jars to maven repo
-				http://maven.apache.org/plugins/maven-source-plugin/usage.html -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1.2</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-                               <version>3.3</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <argLine>-Xmx1g</argLine>
-                    <systemPropertyVariables>
-                        <testtmpdir>${project.build.directory}/heritrix-junit-tests</testtmpdir>
-                        <heritrix.hostname>localhost</heritrix.hostname>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-		</plugins>      
-	</build>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<build.timestamp>${maven.build.timestamp}</build.timestamp>

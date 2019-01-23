@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<!--
+POM reference: http://maven.apache.org/pom.html
+
+List of the better articles on maven:
+
+http://www.javaworld.com/javaworld/jw-05-2006/jw-0529-maven.html
+http://www.javaworld.com/javaworld/jw-02-2006/jw-0227-maven_p.html
+
+URLs on converting from 1.0 to 2.0 maven (not much good generally):
+
+http://wiki.osafoundation.org/bin/view/Journal/Maven2Upgrade
+http://maven.apache.org/guides/mini/guide-m1-m2.html
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.archive</groupId>
+  <!--This project is parent to all under 'projects' subdirectory-->
+  <artifactId>heritrix</artifactId>
+  <version>3.4.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Heritrix 3</name>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>builds.archive.org,maven2</id>
+      <url>http://builds.archive.org/maven2</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <repositories>
+    <repository>
+      <id>builds.archive.org,maven2</id>
+      <url>http://builds.archive.org/maven2</url>
+    </repository>
+  </repositories>
+
+  <prerequisites>
+    <maven>2.0.9</maven>
+  </prerequisites>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.archive.heritrix</groupId>
+        <artifactId>commons</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.archive.heritrix</groupId>
+        <artifactId>modules</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.archive.heritrix</groupId>
+        <artifactId>engine</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- lock httpclient version -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.3.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>4.3.6</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jacoco</groupId>
+      <artifactId>org.jacoco.agent</artifactId>
+      <version>0.8.3</version>
+      <scope>test</scope>
+      <classifier>runtime</classifier>
+    </dependency>
+  </dependencies>
+
+  <distributionManagement>
+    <repository>
+      <id>repository</id>
+      <name>Repository</name>
+      <!--Pass as command-line system property to maven-->
+      <url>${repository.url}</url>
+    </repository>
+    <site>
+      <id>website</id>
+      <name>Website</name>
+      <!--Pass as command-line system property to maven-->
+      <url>${website.url}/projects/${project.artifactId}</url>
+    </site>
+  </distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- install source jars to maven repo
+				http://maven.apache.org/plugins/maven-source-plugin/usage.html -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.1.2</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.3</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M3</version>
+        <configuration>
+          <systemPropertyVariables>
+            <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
+            <testtmpdir>${project.build.directory}/heritrix-junit-tests</testtmpdir>
+            <heritrix.hostname>localhost</heritrix.hostname>
+          </systemPropertyVariables>
+          <testFailureIgnore>true</testFailureIgnore>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.3</version>
+        <executions>
+          <execution>
+            <id>instrument</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>instrument</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>restore-instrumented-classes</id>
+            <phase>test</phase>
+            <goals>
+              <goal>restore-instrumented-classes</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.9</version>
+        <reportSets>
+          <reportSet></reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>3.0.0-M3</version>
+        <configuration>
+          <linkXRef>false</linkXRef>
+          <showSuccess>false</showSuccess>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.3</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <build.timestamp>${maven.build.timestamp}</build.timestamp>
+  </properties>
+</project>
